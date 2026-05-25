@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>API Test</title>
+<style>
+  body{font-family:monospace;background:#0d0d1a;color:#e2e8f0;padding:30px;font-size:14px}
+  h2{color:#7c3aed;margin-bottom:20px}
+  button{background:#7c3aed;color:#fff;border:none;padding:10px 20px;
+         border-radius:8px;cursor:pointer;margin:6px 4px;font-size:13px}
+  button:hover{background:#6d28d9}
+  input{background:#1a1a2e;border:1px solid #333;color:#e2e8f0;
+        padding:8px 12px;border-radius:6px;width:260px;margin:4px;font-size:13px}
+  #log{background:#0a0a0f;border:1px solid #2a2a4a;border-radius:10px;
+       padding:16px;margin-top:20px;white-space:pre-wrap;min-height:200px;
+       max-height:500px;overflow-y:auto;font-size:12px;line-height:1.7}
+  .ok{color:#10b981}.err{color:#ef4444}.info{color:#60a5fa}.warn{color:#f59e0b}
+</style>
+</head>
+<body>
+<h2>🔧 VaultShare — API Diagnostic Test</h2>
+
+<div>
+  <input id="email" placeholder="Email" value="test@example.com"/>
+  <input id="password" type="password" placeholder="Password" value="password123"/>
+</div>
+<div>
+  <button onclick="testHealth()">1. Test Server Health</button>
+  <button onclick="testRegister()">2. Test Register</button>
+  <button onclick="testLogin()">3. Test Login</button>
+  <button onclick="testToken()">4. Check Saved Token</button>
+  <button onclick="goToDash()">5. Go To Dashboard</button>
+  <button onclick="clearLog()">Clear Log</button>
+</div>
+<div id="log"><span class="info">Click the buttons above to test each step...</span></div>
+
+<script>
+  function log(msg, cls=''){
+    const d=document.getElementById('log');
+    const t=new Date().toLocaleTimeString();
+    d.innerHTML += `\n<span class="${cls}">[${t}] ${msg}</span>`;
+    d.scrollTop=d.scrollHeight;
+  }
+  function clearLog(){ document.getElementById('log').innerHTML=''; }
+
+  async function testHealth(){
+    log('Testing server health...','info');
+    try{
+      const r=await fetch('/api/health');
+      const txt=await r.text();
+      log('Server responded: '+txt,'ok');
+    }catch(e){ log('FAILED: '+e.message,'err'); }
+  }
+
+  async function testRegister(){
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
+    log(`Registering: ${email} ...`,'info');
+    try{
+      const r=await fetch('/api/auth/register',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email,password})
+      });
+      const txt=await r.text();
+      log('HTTP Status: '+r.status+(r.ok?' (OK)':' (ERROR)')  , r.ok?'ok':'err');
+      log('Response: '+txt, r.ok?'ok':'err');
+      if(r.ok){
+        const d=JSON.parse(txt);
+        if(d.token){
+          localStorage.setItem('vaultToken',d.token);
+          localStorage.setItem('vaultUser',JSON.stringify(d.user));
+          log('Token saved to localStorage ✓','ok');
+        }
+      }
+    }catch(e){ log('NETWORK ERROR: '+e.message,'err'); }
+  }
+
+  async function testLogin(){
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
+    log(`Logging in: ${email} ...`,'info');
+    try{
+      const r=await fetch('/api/auth/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email,password})
+      });
+      const txt=await r.text();
+      log('HTTP Status: '+r.status+(r.ok?' (OK)':' (ERROR)'), r.ok?'ok':'err');
+      log('Response: '+txt, r.ok?'ok':'err');
+      if(r.ok){
+        const d=JSON.parse(txt);
+        if(d.token){
+          localStorage.setItem('vaultToken',d.token);
+          localStorage.setItem('vaultUser',JSON.stringify(d.user));
+          log('Token saved to localStorage ✓','ok');
+          log('You can now click "Go To Dashboard"','ok');
+        }
+      }
+    }catch(e){ log('NETWORK ERROR: '+e.message,'err'); }
+  }
+
+  function testToken(){
+    const t=localStorage.getItem('vaultToken');
+    const u=localStorage.getItem('vaultUser');
+    if(t){
+      log('Token EXISTS in localStorage ✓','ok');
+      log('User: '+u,'ok');
+      log('Token preview: '+t.substring(0,50)+'...','ok');
+    } else {
+      log('NO TOKEN found in localStorage ✗','err');
+      log('You must register or login first.','warn');
+    }
+  }
+
+  function goToDash(){
+    const t=localStorage.getItem('vaultToken');
+    if(!t){ log('No token! Login first.','err'); return; }
+    log('Navigating to dashboard...','info');
+    window.location.href='/dashboard';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultShare — Access File</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <nav class="nav">
+    <a class="nav-logo" href="/">⬡ VaultShare</a>
+    <div class="nav-links"><a href="/dashboard" class="nav-link">Dashboard</a></div>
+  </nav>
+
+  <section class="access-section">
+    <div class="container-sm">
+
+      <!-- Loading state -->
+      <div class="access-card" id="loadingCard">
+        <div class="spinner"></div>
+        <p class="loading-text">Verifying secure link…</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="access-card hidden" id="errorCard">
+        <div class="error-icon">✕</div>
+        <h2 class="access-title" id="errorTitle">Link Unavailable</h2>
+        <p class="access-desc" id="errorDesc">This file is no longer accessible.</p>
+        <a href="/" class="btn btn-primary" style="margin-top:1.5rem">Share a File →</a>
+      </div>
+
+      <!-- Main access card -->
+      <div class="access-card hidden" id="mainCard">
+        <div class="file-hero">
+          <div class="file-type-badge" id="fileTypeBadge">FILE</div>
+          <h2 class="file-title" id="fileTitle">Filename</h2>
+          <div class="file-meta-row">
+            <span class="meta-chip" id="fileSize">0 KB</span>
+            <span class="meta-chip" id="fileType">Unknown</span>
+            <span class="status-chip active" id="fileStatus">Active</span>
+          </div>
+        </div>
+
+        <div class="access-meta" id="accessMeta"></div>
+
+        <!-- Password form (hidden if no password) -->
+        <div class="form-group hidden" id="passwordGroup">
+          <label class="form-label">🔐 Password Required</label>
+          <input type="password" class="input" id="accessPassword" placeholder="Enter access password" />
+          <p class="form-hint">This file is password protected</p>
+        </div>
+
+        <!-- Reason selector — buttons populated dynamically by access.js -->
+        <div class="form-group" id="reasonGroup">
+          <label class="form-label">🔒 Confirm access type to unlock download</label>
+          <div class="reason-grid">
+            <!-- populated by access.js based on file accessType -->
+          </div>
+          <input type="hidden" id="selectedReason" value="" />
+        </div>
+
+        <button class="btn btn-primary btn-lg btn-download" id="downloadBtn" disabled>
+          ⬇ Download File
+        </button>
+        <p class="download-hint" id="downloadHint">Select an access reason to continue</p>
+
+        <div class="self-destruct-warning hidden" id="selfDestructWarning">
+          🔥 <strong>Warning:</strong> This file will self-destruct after download and become permanently inaccessible.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>⬡ VaultShare &mdash; Secure. Controlled. Transparent.</span>
+  </footer>
+
+  <script src="/js/access.js"></script>
+</body>
+</html>

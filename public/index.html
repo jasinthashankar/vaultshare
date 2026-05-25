@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultShare — Smart Controlled File Sharing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <nav class="nav">
+    <a class="nav-logo" href="/">⬡ VaultShare</a>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <button onclick="(function(){localStorage.removeItem('vaultToken');window.location.href='/login';})()" style="background:#7c3aed;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;margin-left:8px;">Logout</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="badge">🔐 Secure · Controlled · Trackable</div>
+      <h1 class="hero-title">Share Files<br/><span class="accent">Without Fear</span></h1>
+      <p class="hero-sub">Upload once. Control forever. Know who, when, and why they accessed your files.</p>
+    </div>
+  </section>
+
+  <section class="upload-section">
+    <div class="container">
+      <div class="upload-card" id="uploadCard">
+
+        <!-- STEP 1: Drop zone -->
+        <div class="step active" id="step1">
+          <h2 class="step-title">Upload Your File</h2>
+          <div class="dropzone" id="dropzone">
+            <div class="dz-icon">⬆</div>
+            <div class="dz-text">Drop file here or <span class="dz-link">click to browse</span></div>
+            <div class="dz-hint">Up to 100MB · All file types except executables</div>
+            <input type="file" id="fileInput" class="file-input" />
+          </div>
+          <div class="file-preview hidden" id="filePreview">
+            <div class="fp-icon" id="fpIcon">📄</div>
+            <div class="fp-info">
+              <div class="fp-name" id="fpName">—</div>
+              <div class="fp-meta" id="fpMeta">—</div>
+            </div>
+            <button type="button" class="fp-remove" id="fpRemove">✕</button>
+          </div>
+          <button type="button" class="btn btn-primary" id="toStep2" disabled>Configure Access →</button>
+        </div>
+
+        <!-- STEP 2: Settings -->
+        <div class="step" id="step2">
+          <h2 class="step-title">Configure Access Rules</h2>
+          <div class="settings-grid">
+
+            <!-- ACCESS TYPE — full-width, required -->
+            <div class="setting-group setting-group--full" id="accessTypeGroup">
+              <label class="setting-label">
+                <span class="label-icon">🎯</span> Access Type <span style="color:var(--accent);font-size:0.75rem;margin-left:0.4rem">(Required)</span>
+              </label>
+              <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem">Define what this file is for. The receiver must confirm this exact type before downloading.</p>
+              <div class="reason-grid" id="accessTypeGrid">
+                <button type="button" class="reason-btn" data-type="official">🏛️ Official Use</button>
+                <button type="button" class="reason-btn" data-type="work">💼 Work</button>
+                <button type="button" class="reason-btn" data-type="study">📚 Study</button>
+                <button type="button" class="reason-btn" data-type="personal">🏠 Personal</button>
+                <button type="button" class="reason-btn" data-type="research">🔬 Research</button>
+                <button type="button" class="reason-btn" data-type="other">💬 Other</button>
+              </div>
+              <input type="hidden" id="selectedAccessType" value="" />
+              <p class="form-hint" id="accessTypeHint" style="color:#e57373;margin-top:0.5rem">⚠ Select an access type to continue</p>
+            </div>
+
+            <div class="setting-group">
+              <label class="setting-label">
+                <span class="label-icon">🔐</span> Password Protection
+              </label>
+              <div class="toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="enablePassword" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-desc">Require password to download</span>
+              </div>
+              <div class="setting-sub hidden" id="passwordField">
+                <input type="password" class="input" id="password" placeholder="Set access password" autocomplete="new-password" />
+              </div>
+            </div>
+
+            <div class="setting-group">
+              <label class="setting-label">
+                <span class="label-icon">⏳</span> Expiry Time
+              </label>
+              <select class="input" id="expiryHours">
+                <option value="">Never expires</option>
+                <option value="1">1 hour</option>
+                <option value="6">6 hours</option>
+                <option value="24">24 hours</option>
+                <option value="72">3 days</option>
+                <option value="168">7 days</option>
+                <option value="720">30 days</option>
+              </select>
+            </div>
+
+            <div class="setting-group">
+              <label class="setting-label">
+                <span class="label-icon">🔢</span> Download Limit
+              </label>
+              <select class="input" id="maxDownloads">
+                <option value="">Unlimited downloads</option>
+                <option value="1">1 download</option>
+                <option value="5">5 downloads</option>
+                <option value="10">10 downloads</option>
+                <option value="25">25 downloads</option>
+                <option value="50">50 downloads</option>
+              </select>
+            </div>
+
+            <div class="setting-group">
+              <label class="setting-label">
+                <span class="label-icon">🔥</span> Self-Destruct
+              </label>
+              <div class="toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="selfDestruct" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-desc">Delete after first download</span>
+              </div>
+            </div>
+
+            <div class="setting-group">
+              <label class="setting-label">
+                <span class="label-icon">👁</span> Preview Mode
+              </label>
+              <div class="toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="previewEnabled" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-desc">Allow file info preview</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn-ghost" id="backToStep1">← Back</button>
+            <button type="button" class="btn btn-primary" id="uploadBtn">
+              <span id="uploadBtnText">🔒 Generate Secure Link</span>
+              <span id="uploadProgress" class="hidden">Uploading...</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Success -->
+        <div class="step" id="step3">
+          <div class="success-icon">✓</div>
+          <h2 class="step-title">Link Generated!</h2>
+          <p class="success-sub">Your file is secured. Share this link:</p>
+
+          <div class="link-box">
+            <span class="link-text" id="shareLink">—</span>
+            <button type="button" class="copy-btn" id="copyBtn" title="Copy link">⎘</button>
+          </div>
+
+          <div class="file-badges" id="fileBadges"></div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn-ghost" onclick="location.reload()">Upload Another</button>
+            <a href="/dashboard" class="btn btn-primary">View Dashboard →</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="features-strip">
+        <div class="feature"><span class="f-icon">🔐</span><span>Password Protection</span></div>
+        <div class="feature"><span class="f-icon">⏳</span><span>Time-Based Expiry</span></div>
+        <div class="feature"><span class="f-icon">🔥</span><span>Self-Destruct</span></div>
+        <div class="feature"><span class="f-icon">📊</span><span>Access Analytics</span></div>
+        <div class="feature"><span class="f-icon">🚫</span><span>Instant Revoke</span></div>
+        <div class="feature"><span class="f-icon">👁</span><span>Real-Time Tracking</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>⬡ VaultShare &mdash; Secure. Controlled. Transparent.</span>
+  </footer>
+
+  <script src="/js/upload.js"></script>
+
+<script>
+// Redirect to login if not logged in
+(function() {
+  if (!localStorage.getItem('vaultToken')) {
+    window.location.href = '/login';
+  }
+})();
+</script>
+</body>
+</html>

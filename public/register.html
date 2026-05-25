@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — VaultShare</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#e2e8f0;
+         min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#13132b;border:1px solid #2a2a4a;border-radius:18px;
+          padding:44px 40px;width:100%;max-width:430px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+    .logo{font-size:26px;font-weight:800;color:#7c3aed}
+    .sub{color:#64748b;font-size:13px;margin-top:4px;margin-bottom:28px}
+    label{display:block;font-size:11px;font-weight:700;color:#94a3b8;
+          margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase}
+    .field{margin-bottom:16px}
+    input{width:100%;padding:12px 14px;background:#0d0d1a;border:1.5px solid #2a2a4a;
+          border-radius:10px;color:#e2e8f0;font-size:14px;outline:none;transition:border-color .2s}
+    input:focus{border-color:#7c3aed}
+    .strength-bar{height:3px;background:#2a2a4a;border-radius:2px;margin-top:5px;overflow:hidden}
+    .strength-fill{height:100%;width:0;transition:width .3s,background .3s;border-radius:2px}
+    .hint{font-size:11px;color:#475569;margin-top:4px}
+    .btn{width:100%;padding:13px;background:#7c3aed;border:none;border-radius:10px;
+         color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;
+         display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+    .btn:hover{background:#6d28d9}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+             border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .alert{border-radius:10px;padding:12px 14px;font-size:13px;
+           margin-bottom:14px;display:none;gap:8px;align-items:flex-start;
+           word-break:break-word;line-height:1.5}
+    .alert.err{background:#1f0a0a;border:1px solid #7f1d1d;color:#fca5a5;display:none}
+    .alert.ok {background:#052e16;border:1px solid #166534;color:#86efac;display:none}
+    .alert.show{display:flex !important}
+    .divider{text-align:center;margin-top:18px;font-size:13px;color:#475569}
+    .divider a{color:#7c3aed;text-decoration:none;font-weight:600}
+    .divider a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🔒 VaultShare</div>
+  <div class="sub">Create your secure account</div>
+
+  <div class="alert err" id="err"><span>⚠️</span><span id="errMsg"></span></div>
+  <div class="alert ok"  id="ok" ><span>✅</span><span id="okMsg"></span></div>
+
+  <form id="registerForm" onsubmit="doRegister(event)">
+  <div class="field">
+    <label>Email Address</label>
+    <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+  </div>
+
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Minimum 8 characters"
+           autocomplete="new-password" oninput="onPwInput(this.value)"/>
+    <div class="strength-bar"><div class="strength-fill" id="sfill"></div></div>
+    <div class="hint" id="stext">Enter a password</div>
+  </div>
+
+  <div class="field">
+    <label>Confirm Password</label>
+    <input type="password" id="confirm" placeholder="Re-enter password" autocomplete="new-password"/>
+  </div>
+
+  <button type="submit" class="btn" id="btn">
+    <div class="spinner" id="spin"></div>
+    <span id="btnTxt">Create Account</span>
+  </button>
+  </form>
+
+  <div class="divider">Already have an account? <a href="/login">Sign in here</a></div>
+</div>
+
+<script>
+  // If already logged in → skip straight to dashboard
+  (function(){
+    try { if(localStorage.getItem('vaultToken')) window.location.replace('/dashboard'); }
+    catch(e){}
+  })();
+
+  function onPwInput(v){
+    let s=0;
+    if(v.length>=8)s++; if(v.length>=12)s++; if(/[A-Z]/.test(v))s++;
+    if(/[0-9]/.test(v))s++; if(/[^A-Za-z0-9]/.test(v))s++;
+    const c=['#2a2a4a','#ef4444','#f97316','#eab308','#22c55e','#10b981'][Math.min(s,5)];
+    const l=['Enter a password','Weak','Fair','Good','Strong','Very Strong ✓'][Math.min(s,5)];
+    const f=document.getElementById('sfill');
+    f.style.width=[0,25,50,75,90,100][Math.min(s,5)]+'%';
+    f.style.background=c;
+    const t=document.getElementById('stext'); t.textContent=l; t.style.color=c;
+  }
+
+  function showErr(msg){
+    const e=document.getElementById('err');
+    document.getElementById('errMsg').textContent=msg;
+    document.getElementById('ok').className='alert ok';
+    e.className='alert err show';
+  }
+  function showOk(msg){
+    const e=document.getElementById('ok');
+    document.getElementById('okMsg').textContent=msg;
+    document.getElementById('err').className='alert err';
+    e.className='alert ok show';
+  }
+  function setLoading(on){
+    document.getElementById('btn').disabled=on;
+    document.getElementById('spin').style.display=on?'block':'none';
+    document.getElementById('btnTxt').textContent=on?'Creating account…':'Create Account';
+  }
+
+  async function doRegister(event){
+    if (event) event.preventDefault();
+    const email   = document.getElementById('email').value.trim();
+    const pw      = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm').value;
+
+    document.getElementById('err').className='alert err';
+    document.getElementById('ok').className='alert ok';
+
+    // Client-side validation
+    if(!email)            return showErr('Please enter your email.');
+    if(!/\S+@\S+\.\S+/.test(email)) return showErr('Enter a valid email address.');
+    if(!pw)               return showErr('Please enter a password.');
+    if(pw.length<8)       return showErr('Password must be at least 8 characters.');
+    if(pw!==confirm)      return showErr('Passwords do not match.');
+
+    setLoading(true);
+
+    try {
+      // Step 1: call the server
+      showOk('Contacting server…');
+      const res = await fetch('/api/auth/register', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email, password:pw})
+      });
+
+      // Step 2: parse response
+      let data;
+      const rawText = await res.text();   // read as text first (safe)
+      try { data = JSON.parse(rawText); }
+      catch(e){ 
+        showErr('Server returned unexpected response: ' + rawText.substring(0,200));
+        setLoading(false); return;
+      }
+
+      // Step 3: check for errors
+      if(!res.ok){
+        showErr(data.error || 'Registration failed (status '+res.status+')');
+        setLoading(false); return;
+      }
+
+      // Step 4: verify token exists in response
+      if(!data.token){
+        showErr('Server did not return a token. Response: '+JSON.stringify(data));
+        setLoading(false); return;
+      }
+
+      // Step 5: save and navigate
+      showOk('Account created! Redirecting to dashboard…');
+      localStorage.setItem('vaultToken', data.token);
+      localStorage.setItem('vaultUser',  JSON.stringify(data.user));
+      setTimeout(()=>{ window.location.replace('/dashboard'); }, 1500);
+
+    } catch(networkErr){
+      showErr('Network error — is the server running? Details: '+networkErr.message);
+      setLoading(false);
+    }
+  }
+</script>
+</body>
+</html>

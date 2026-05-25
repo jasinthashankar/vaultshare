@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultShare — Analytics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <nav class="nav">
+    <a class="nav-logo" href="/">⬡ VaultShare</a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Upload</a>
+      <button onclick="logout()" style="background:#7c3aed;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;">Logout</button>
+      <button class="btn btn-sm" id="refreshBtn">↺ Refresh</button>
+    </div>
+  </nav>
+
+  <section class="dash-section">
+    <div class="dash-container">
+
+      <div class="dash-header">
+        <h1 class="dash-title">Analytics Dashboard</h1>
+        <p class="dash-sub">Real-time monitoring of all file access & activity</p>
+        <div class="live-indicator"><span class="live-dot"></span> Live</div>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📤</div>
+          <div class="stat-value" id="statUploads">0</div>
+          <div class="stat-label">Total Uploads</div>
+        </div>
+        <div class="stat-card accent-green">
+          <div class="stat-icon">📥</div>
+          <div class="stat-value" id="statDownloads">0</div>
+          <div class="stat-label">Total Downloads</div>
+        </div>
+        <div class="stat-card accent-blue">
+          <div class="stat-icon">🟢</div>
+          <div class="stat-value" id="statActive">0</div>
+          <div class="stat-label">Active Files</div>
+        </div>
+        <div class="stat-card accent-red">
+          <div class="stat-icon">🚫</div>
+          <div class="stat-value" id="statRevoked">0</div>
+          <div class="stat-label">Revoked</div>
+        </div>
+        <div class="stat-card accent-yellow">
+          <div class="stat-icon">🔐</div>
+          <div class="stat-value" id="statPassword">0</div>
+          <div class="stat-label">Password Protected</div>
+        </div>
+        <div class="stat-card accent-orange">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value" id="statSelfDestruct">0</div>
+          <div class="stat-label">Self-Destruct</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card wide">
+          <h3 class="chart-title">Download Trend (Last 7 Days)</h3>
+          <canvas id="trendChart" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Device Breakdown</h3>
+          <canvas id="deviceChart" height="160"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Access Reasons</h3>
+          <canvas id="reasonChart" height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- Files Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3 class="chart-title">All Files</h3>
+          <div class="table-filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active</button>
+            <button class="filter-btn" data-filter="revoked">Revoked</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="filesTable">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Size</th>
+                <th>Downloads</th>
+                <th>Expiry</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="filesBody">
+              <tr><td colspan="6" class="empty-row">Loading files…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Access Logs -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3 class="chart-title">Recent Access Logs</h3>
+          <span class="log-count" id="logCount">0 events</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="logsTable">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Time</th>
+                <th>IP Address</th>
+                <th>Device</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody id="logsBody">
+              <tr><td colspan="5" class="empty-row">No access logs yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Revoke Confirm Modal -->
+  <div class="modal-overlay hidden" id="revokeModal">
+    <div class="modal">
+      <h3 class="modal-title">Revoke Access?</h3>
+      <p class="modal-desc">This will immediately block all access to the file. You can restore it later.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelRevoke">Cancel</button>
+        <button class="btn btn-danger" id="confirmRevoke">Revoke Access</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>⬡ VaultShare &mdash; Secure. Controlled. Transparent.</span>
+  </footer>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
