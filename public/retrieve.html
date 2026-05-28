@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Access File — VaultShare</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#e2e8f0;
+         min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#13132b;border:1px solid #2a2a4a;border-radius:18px;
+          padding:44px 40px;width:100%;max-width:430px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+    .logo{font-size:26px;font-weight:800;color:#7c3aed;text-decoration:none}
+    .sub{color:#64748b;font-size:13px;margin-top:4px;margin-bottom:28px}
+    label{display:block;font-size:11px;font-weight:700;color:#94a3b8;
+          margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase}
+    .field{margin-bottom:16px}
+    input{width:100%;padding:12px 14px;background:#0d0d1a;border:1.5px solid #2a2a4a;
+          border-radius:10px;color:#e2e8f0;font-size:14px;outline:none;transition:border-color .2s}
+    input:focus{border-color:#7c3aed}
+    .btn{width:100%;padding:13px;background:#7c3aed;border:none;border-radius:10px;
+         color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;
+         display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+    .btn:hover{background:#6d28d9}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .alert{border-radius:10px;padding:12px 14px;font-size:13px;
+           margin-bottom:14px;display:none;gap:8px;align-items:flex-start;
+           word-break:break-word;line-height:1.5}
+    .alert.err{background:#1f0a0a;border:1px solid #7f1d1d;color:#fca5a5}
+    .alert.show{display:flex !important}
+    .divider{text-align:center;margin-top:18px;font-size:13px;color:#475569}
+    .divider a{color:#7c3aed;text-decoration:none;font-weight:600}
+    .divider a:hover{text-decoration:underline}
+  </style>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div class="card">
+  <a href="/" class="logo" style="display:block;margin-bottom:4px;">⬡ VaultShare</a>
+  <div class="sub">Retrieve a shared file</div>
+
+  <div class="alert err" id="err"><span>⚠️</span><span id="errMsg"></span></div>
+
+  <form id="retrieveForm" onsubmit="doRetrieve(event)">
+  <div class="field">
+    <label>Access Key or Share Link</label>
+    <input type="text" id="accessKey" placeholder="e.g. 1234abcd or http://..." required autocomplete="off"/>
+  </div>
+
+  <button type="submit" class="btn" id="btn">Retrieve File</button>
+  </form>
+  
+  <div class="divider">
+    Need to upload a file? <a href="/register">Create an account</a>
+  </div>
+</div>
+
+<script>
+  function doRetrieve(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn');
+    const err = document.getElementById('err');
+    const errMsg = document.getElementById('errMsg');
+    const input = document.getElementById('accessKey').value.trim();
+
+    err.classList.remove('show');
+
+    if(!input) {
+      errMsg.textContent = 'Please enter a valid key or link.';
+      err.classList.add('show');
+      return;
+    }
+
+    // Extract token
+    let token = input;
+    if(input.includes('/access/')) {
+      const parts = input.split('/access/');
+      token = parts[parts.length - 1];
+    } else if(input.includes('/')) {
+      const parts = input.split('/');
+      token = parts[parts.length - 1];
+    }
+
+    if(!token) {
+      errMsg.textContent = 'Invalid format.';
+      err.classList.add('show');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Locating...';
+    
+    // Redirect to the access page
+    window.location.href = '/access/' + encodeURIComponent(token);
+  }
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@
   <title>VaultShare — Smart Controlled File Sharing</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="noise"></div>
@@ -14,6 +14,7 @@
   <nav class="nav">
     <a class="nav-logo" href="/">⬡ VaultShare</a>
     <div class="nav-links">
+      <a href="/retrieve" class="nav-link">Retrieve File</a>
       <a href="/dashboard" class="nav-link">Dashboard</a>
       <button onclick="(function(){localStorage.removeItem('vaultToken');window.location.href='/login';})()" style="background:#7c3aed;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;margin-left:8px;">Logout</button>
     </div>
@@ -197,7 +198,7 @@
     <span>⬡ VaultShare &mdash; Secure. Controlled. Transparent.</span>
   </footer>
 
-  <script src="/js/upload.js"></script>
+  <script src="/script.js"></script>
 
 <script>
 // Redirect to login if not logged in

@@ -1,152 +1,76 @@
-# ⬡ VaultShare — Smart Controlled File Sharing System
+# Smart Controlled File Sharing System (VaultShare)
 
-A secure, intelligent file-sharing platform with privacy controls, real-time analytics, and access management.
+A secure, modern file-sharing web application with advanced privacy, access control, and real-time analytics.
 
----
+## Features
 
-## 🚀 Quick Start
+- **User Authentication**: Secure JWT-based login and registration.
+- **Secure File Upload**: Upload files to Cloudinary seamlessly.
+- **Password Protection**: Optional password for file downloads.
+- **Smart Expiry**: Set hour-based expiry for shared links.
+- **Self-Destruct**: One-time download functionality that automatically revokes access after one use.
+- **Access Control & Analytics**: Track IP, Device Type, Timestamp, and Access Reason (Study/Work/Personal) via a real-time Chart.js dashboard.
+- **Remote Revoke**: Revoke file access instantly from the dashboard.
+- **Modern UI**: Fully responsive glassmorphism design with a dark premium aesthetic.
 
-### Prerequisites
-- **Node.js** v16 or higher
-- **npm** v7 or higher
+## Local Setup Instructions
 
-### Installation
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-```bash
-# 1. Install dependencies
-npm install
+2. **Configure Environment Variables**
+   Open the `.env` file in the root directory and update it with your actual credentials:
+   ```env
+   CLOUD_NAME=your_cloudinary_cloud_name
+   API_KEY=your_cloudinary_api_key
+   API_SECRET=your_cloudinary_api_secret
+   MONGO_URI=your_mongodb_atlas_connection_string
+   JWT_SECRET=your_super_secret_jwt_key
+   PORT=3000
+   ```
 
-# 2. Start the server
-npm start
+3. **Start the Development Server**
+   ```bash
+   npm run dev
+   ```
+   Or for production:
+   ```bash
+   npm start
+   ```
 
-# OR for development (auto-reload)
-npm run dev
-```
+4. **Access the App**
+   Open your browser and navigate to `http://localhost:3000`.
 
-Then open your browser at: **http://localhost:3000**
+## Deployment Guide (Render + MongoDB Atlas)
 
----
+### 1. MongoDB Atlas Setup
+1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2. Go to "Database Access" and create a database user (save the username and password).
+3. Go to "Network Access" and add IP `0.0.0.0/0` to allow connections from anywhere (Render needs this).
+4. Go to "Clusters" -> "Connect" -> "Connect your application" and copy the connection string. Replace `<password>` with your user's password.
 
-## ✨ Features
+### 2. Cloudinary Setup
+1. Create a free account on [Cloudinary](https://cloudinary.com/).
+2. Go to your Dashboard and copy your `Cloud Name`, `API Key`, and `API Secret`.
 
-| Feature | Description |
-|---|---|
-| 🔐 Password Protection | Secure files with a password; only authorized users can download |
-| 🔥 Self-Destruct | File is permanently revoked after the first download |
-| ⏳ Time-Based Expiry | Set expiry from 1 hour to 30 days |
-| 🔢 Download Limits | Cap how many times a file can be downloaded |
-| 🚫 Remote Revoke | Instantly cut off access from the dashboard |
-| 🧠 Access Reason | Recipients must state why they're downloading (Study / Work / Personal / Research / Other) |
-| 👀 Real-Time Tracking | Every download logs IP address, device type, timestamp, and reason |
-| 📊 Analytics Dashboard | Charts showing trends, device breakdown, and reason breakdown |
-| 📱 Responsive Design | Works on desktop, tablet, and mobile |
+### 3. Deploy to Render
+1. Push this project repository to GitHub.
+2. Sign in to [Render](https://render.com/) and create a new **Web Service**.
+3. Connect your GitHub repository.
+4. Configure the service:
+   - **Environment**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+5. Go to the **Environment** section and add all your environment variables exactly as they appear in the `.env` file.
+6. Click **Create Web Service**. Render will build and deploy your app. Once finished, you will receive a public URL (e.g., `https://vaultshare.onrender.com`).
 
----
-
-## 📁 Project Structure
-
-```
-smart-file-share/
-├── server.js                 # Express server entry point
-├── package.json
-├── routes/
-│   ├── files.js              # Upload, list, revoke, delete endpoints
-│   ├── access.js             # Download, verify password endpoints
-│   └── analytics.js          # Overview stats and access logs
-├── middleware/
-│   └── upload.js             # Multer file upload config
-├── utils/
-│   ├── store.js              # In-memory data store
-│   └── helpers.js            # Utility functions
-├── public/
-│   ├── index.html            # Upload page
-│   ├── dashboard.html        # Analytics dashboard
-│   ├── access.html           # File access/download page
-│   ├── css/
-│   │   ├── style.css         # Main styles
-│   │   └── dashboard.css     # Dashboard styles
-│   └── js/
-│       ├── upload.js         # Upload page logic
-│       ├── access.js         # Access page logic
-│       └── dashboard.js      # Dashboard logic
-└── uploads/                  # Stored files (auto-created)
-```
-
----
-
-## 🌐 Pages
-
-| Page | URL | Description |
-|---|---|---|
-| Upload | `http://localhost:3000/` | Upload files and configure access |
-| Dashboard | `http://localhost:3000/dashboard` | Analytics and file management |
-| Access | `http://localhost:3000/access/:token` | Recipient download page |
-
----
-
-## 🔌 API Reference
-
-### Upload
-`POST /api/files/upload`  
-Form data: `file`, `password?`, `expiryHours?`, `maxDownloads?`, `selfDestruct?`, `previewEnabled?`
-
-### File Info
-`GET /api/files/info/:token`
-
-### List All Files
-`GET /api/files/list`
-
-### Revoke Access
-`POST /api/files/revoke/:token`
-
-### Restore Access
-`POST /api/files/restore/:token`
-
-### Delete File
-`DELETE /api/files/:token`
-
-### Download
-`POST /f/download/:token`  
-Body: `{ reason, password? }`
-
-### Analytics Overview
-`GET /api/analytics/overview`
-
-### Access Logs
-`GET /api/analytics/logs?limit=50`
-
----
-
-## ⚙️ Configuration
-
-Edit `server.js` to change:
-- `PORT` (default: 3000)
-- Session secret
-- Rate limits
-
-Edit `middleware/upload.js` to change:
-- Max file size (default: 100MB)
-- Blocked file types
-
----
-
-## 📦 Production Notes
-
-- **Storage**: This implementation uses in-memory storage. Data is lost when the server restarts. For production, integrate a database (SQLite, MongoDB, PostgreSQL).
-- **File Storage**: Files are stored in `/uploads`. For production, consider S3 or another cloud storage.
-- **HTTPS**: Deploy behind a reverse proxy (nginx) with SSL for production use.
-- **Session Secret**: Change the session secret in `server.js` to a strong random value.
-
----
-
-## 🛡️ Security
-
-- File types filtered (executables blocked)
-- Rate limiting on upload and access routes
-- Password hashing with bcrypt (cost factor 10)
-- Helmet.js security headers
-- File access validated on every request (expiry, revoke, limits)
-
----
-
-*Built with Node.js · Express · Multer · Chart.js*
+## Project Structure
+- `server.js`: Application entry point.
+- `models/`: Mongoose schemas (`File.js`, `User.js`).
+- `controllers/`: Request handling logic (`authController.js`, `fileController.js`).
+- `routes/`: Express API routers.
+- `middleware/`: JWT verification middleware.
+- `config/`: Cloudinary and Multer setup.
+- `public/`: Frontend static files (HTML, CSS, JS).
