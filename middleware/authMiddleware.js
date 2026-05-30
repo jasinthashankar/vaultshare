@@ -1,15 +1,16 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const supabase = require('../config/supabaseClient');
 
-const SECRET = process.env.JWT_SECRET || 'vaultshare-jwt-secret-2024';
-
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const h = req.headers.authorization;
   if (!h || !h.startsWith('Bearer ')) return res.status(401).json({ error: 'Login required' });
+  const token = h.slice(7);
+
   try {
-    req.user = jwt.verify(h.slice(7), SECRET);
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) throw new Error('Invalid token');
+    req.user = { id: user.id, email: user.email };
     next();
-  } catch {
+  } catch (err) {
     res.status(401).json({ error: 'Session expired, please login again' });
   }
 }

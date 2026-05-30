@@ -11,14 +11,14 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="/style.css" />
 </head>
-<body>
+<body>
   <div class="noise"></div>
 
   <nav class="nav">
     <a class="nav-logo" href="/">⬡ VaultShare</a>
     <div class="nav-links">
       <a href="/" class="nav-link">Upload</a>
-      <button onclick="logout()" style="background:#7c3aed;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;">Logout</button>
+      <button onclick="(function(){localStorage.removeItem('vaultToken');window.location.href='/login';})()" class="btn btn-sm" style="border-color: var(--accent-red); color: var(--accent-red);">Logout</button>
       <button class="btn btn-sm" id="refreshBtn">↺ Refresh</button>
     </div>
   </nav>

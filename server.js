@@ -55,6 +55,8 @@ app.get('/dashboard',     (req, res) => res.sendFile(path.join(__dirname, 'publi
 app.get('/retrieve',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'retrieve.html')));
 app.get('/access/:token', (req, res) => res.sendFile(path.join(__dirname, 'public', 'access.html')));
 app.get('/test',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'test.html')));
+app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forgot-password.html')));
+app.get('/reset-password',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'reset-password.html')));
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
 // ── Global Error Handler ─────────────────────────────────────

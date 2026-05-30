@@ -256,26 +256,26 @@
 ============================================= */
 
 :root {
-  --bg: #0a0a0f;
+  --bg: #05050A;
   --bg2: #111118;
   --bg3: #1a1a24;
-  --border: #2a2a38;
+  --border: #8b5cf6; /* Purple borders for cards */
   --border2: #3a3a50;
-  --text: #e8e8f0;
-  --text2: #9090a8;
-  --text3: #6060780;
-  --accent: #00ff88;
-  --accent2: #00cc6a;
-  --accent-red: #ff4466;
-  --accent-blue: #4488ff;
-  --accent-yellow: #ffcc00;
+  --text: #00f0ff;   /* Cyan text */
+  --text2: #8b5cf6;  /* Purple text */
+  --text3: #606078;
+  --accent: #00f0ff;
+  --accent2: #8b5cf6;
+  --accent-red: #ff003c;
+  --accent-blue: #00f0ff;
+  --accent-yellow: #fcee0a;
   --accent-orange: #ff8844;
-  --accent-purple: #cc44ff;
-  --font-display: 'Syne', sans-serif;
+  --accent-purple: #8b5cf6;
+  --font-display: 'Space Mono', monospace;
   --font-mono: 'Space Mono', monospace;
-  --radius: 12px;
-  --radius-sm: 6px;
-  --shadow: 0 0 40px rgba(0,255,136,0.05);
+  --radius: 0px;     /* Sharp corners */
+  --radius-sm: 0px;
+  --shadow: 0 0 20px rgba(0, 240, 255, 0.1);
   --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 
@@ -291,14 +291,17 @@ body {
   overflow-x: hidden;
 }
 
-/* Noise texture overlay */
+/* Grid background overlay */
 .noise {
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  background-color: var(--bg);
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
+  z-index: -1;
 }
 
 /* ---- NAV ---- */
@@ -346,10 +349,11 @@ body {
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all var(--transition);
   text-decoration: none;
   white-space: nowrap;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 
 .btn-primary {
@@ -393,13 +397,14 @@ body {
   width: 100%;
   padding: 0.75rem 1rem;
   background: var(--bg3);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: var(--font-mono);
   font-size: 0.85rem;
-  transition: border-color var(--transition);
+  transition: all var(--transition);
   appearance: none;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 .input:focus {
   outline: none;

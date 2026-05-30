@@ -1,42 +1,30 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const supabase = require('../config/supabaseClient');
 require('dotenv').config();
 
-const SECRET = process.env.JWT_SECRET || 'vaultshare-jwt-secret-2024';
-
 const registerUser = async (req, res) => {
   try {
-    const username = (req.body.username || req.body.email || '').toLowerCase().trim();
+    const email = (req.body.username || req.body.email || '').toLowerCase().trim();
     const { password } = req.body;
-    console.log('\n[REGISTER] username:', username);
+    console.log('\n[REGISTER] email:', email);
 
-    if (!username || !password)
-      return res.status(400).json({ error: 'Username and password are required' });
-    if (password.length < 6)
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
-    const { data: existing } = await supabase
+    // Supabase Auth SignUp
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return res.status(400).json({ error: error.message });
+
+    const user = data.user;
+    if (!user) return res.status(400).json({ error: 'Registration failed, no user returned.' });
+
+    // Sync to public.users to maintain database relationships
+    const { error: syncError } = await supabase
       .from('users')
-      .select('id')
-      .eq('email', username)
-      .single();
+      .upsert([{ id: user.id, email: user.email, hash: 'supabase_auth' }]);
+    
+    if (syncError) console.error('[SYNC ERROR]', syncError);
 
-    if (existing)
-      return res.status(409).json({ error: 'This username is already registered. Please login.' });
-
-    const hash = await bcrypt.hash(password, 10);
-
-    const { data: user, error } = await supabase
-      .from('users')
-      .insert([{ email: username, hash }])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET, { expiresIn: '7d' });
-    console.log('[REGISTER] success for', user.email);
+    const token = data.session ? data.session.access_token : null;
     res.json({ token, user: { id: user.id, email: user.email } });
 
   } catch (err) {
@@ -47,29 +35,19 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const username = (req.body.username || req.body.email || '').toLowerCase().trim();
+    const email = (req.body.username || req.body.email || '').toLowerCase().trim();
     const { password } = req.body;
-    console.log('\n[LOGIN] username:', username);
+    console.log('\n[LOGIN] email:', email);
 
-    if (!username || !password)
-      return res.status(400).json({ error: 'Username and password are required' });
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', username)
-      .single();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return res.status(401).json({ error: error.message });
 
-    if (!user)
-      return res.status(401).json({ error: 'No account found. Please register first.' });
-
-    const valid = await bcrypt.compare(password, user.hash);
-    if (!valid)
-      return res.status(401).json({ error: 'Incorrect password. Please try again.' });
-
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET, { expiresIn: '7d' });
-    console.log('[LOGIN] success for', user.email);
-    res.json({ token, user: { id: user.id, email: user.email } });
+    res.json({ 
+      token: data.session.access_token, 
+      user: { id: data.user.id, email: data.user.email } 
+    });
 
   } catch (err) {
     console.error('[LOGIN] ERROR:', err);
@@ -77,4 +55,47 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${req.protocol}://${req.get('host')}/reset-password`,
+    });
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ success: true, message: 'Password reset email sent' });
+
+  } catch (err) {
+    console.error('[RESET_REQ] ERROR:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const updatePassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    const token = req.headers.authorization?.split(' ')[1]; // The user must pass the recovery token
+
+    if (!newPassword) return res.status(400).json({ error: 'New password is required' });
+    if (!token) return res.status(401).json({ error: 'Recovery token missing' });
+
+    // Supabase handles password updates for the authenticated user
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) return res.status(400).json({ error: error.message });
+
+    res.json({ success: true, message: 'Password successfully updated' });
+
+  } catch (err) {
+    console.error('[UPDATE_PW] ERROR:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  requestPasswordReset,
+  updatePassword
+};

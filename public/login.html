@@ -5,69 +5,221 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login — VaultShare</title>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#e2e8f0;
-         min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-    .card{background:#13132b;border:1px solid #2a2a4a;border-radius:18px;
-          padding:44px 40px;width:100%;max-width:430px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
-    .logo{font-size:26px;font-weight:800;color:#7c3aed}
-    .sub{color:#64748b;font-size:13px;margin-top:4px;margin-bottom:28px}
-    label{display:block;font-size:11px;font-weight:700;color:#94a3b8;
-          margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase}
-    .field{margin-bottom:16px}
-    input{width:100%;padding:12px 14px;background:#0d0d1a;border:1.5px solid #2a2a4a;
-          border-radius:10px;color:#e2e8f0;font-size:14px;outline:none;transition:border-color .2s}
-    input:focus{border-color:#7c3aed}
-    .btn{width:100%;padding:13px;background:#7c3aed;border:none;border-radius:10px;
-         color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;
-         display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
-    .btn:hover{background:#6d28d9}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
-             border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .alert{border-radius:10px;padding:12px 14px;font-size:13px;
-           margin-bottom:14px;display:none;gap:8px;align-items:flex-start;
-           word-break:break-word;line-height:1.5}
-    .alert.err{background:#1f0a0a;border:1px solid #7f1d1d;color:#fca5a5}
-    .alert.ok {background:#052e16;border:1px solid #166534;color:#86efac}
-    .alert.show{display:flex !important}
-    .divider{text-align:center;margin-top:18px;font-size:13px;color:#475569}
-    .divider a{color:#7c3aed;text-decoration:none;font-weight:600}
-    .divider a:hover{text-decoration:underline}
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Space Mono', monospace;
+      background: #05050A;
+      color: #00f0ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Cyber Grid */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+      z-index: -1;
+    }
+
+    .card {
+      position: relative;
+      background: rgba(10, 10, 15, 0.8);
+      border: 2px solid #8b5cf6;
+      border-radius: 8px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+    }
+
+    /* Cyber Corners */
+    .corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #00f0ff;
+    }
+    .corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+    .corner.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+    .corner.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+    .corner.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+    /* Moving Scanline */
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+      animation: scan 3s linear infinite;
+      pointer-events: none;
+      z-index: 10;
+    }
+    @keyframes scan {
+      0% { top: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .header-group {
+      border-bottom: 2px solid #00f0ff;
+      padding-bottom: 15px;
+      margin-bottom: 30px;
+    }
+    .sub {
+      color: #00f0ff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #00f0ff;
+      letter-spacing: 1px;
+    }
+
+    .field { margin-bottom: 20px; text-align: left; }
+    
+    input {
+      width: 100%;
+      padding: 16px 20px;
+      background: #202025;
+      border: none;
+      color: #00f0ff;
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      transition: all 0.3s ease;
+    }
+    input::placeholder { color: rgba(0, 240, 255, 0.4); }
+    input:focus {
+      background: #2a2a35;
+      box-shadow: inset 0 0 0 1px #00f0ff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: rgba(0, 240, 255, 0.1);
+      border-color: #00f0ff;
+      color: #00f0ff;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0, 240, 255, 0.3);
+      border-top-color: #00f0ff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .alert {
+      padding: 12px 14px;
+      font-size: 12px;
+      margin-bottom: 20px;
+      display: none;
+      gap: 8px;
+      align-items: flex-start;
+      text-align: left;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      background: rgba(0, 0, 0, 0.5);
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+    .alert.err { color: #ff003c; border-color: rgba(255, 0, 60, 0.4); }
+    .alert.ok { color: #00ff88; border-color: rgba(0, 255, 136, 0.4); }
+    .alert.show { display: flex !important; }
+
+    .divider {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .divider a {
+      color: #8b5cf6;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .divider a:hover { color: #00f0ff; text-shadow: 0 0 8px rgba(0, 240, 255, 0.5); }
   </style>
-  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 <div class="card">
-  <div class="logo">🔒 VaultShare</div>
-  <div class="sub">Sign in to your secure dashboard</div>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="header-group">
+    <div class="sub">AESTHETIC</div>
+    <div class="logo">// TECHNO</div>
+  </div>
 
   <div class="alert err" id="err"><span>⚠️</span><span id="errMsg"></span></div>
   <div class="alert ok"  id="ok" ><span>✅</span><span id="okMsg"></span></div>
 
   <form id="loginForm" onsubmit="doLogin(event)">
   <div class="field">
-    <label>Email Address</label>
-    <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+    <input type="email" id="email" placeholder="user_id" autocomplete="email"/>
   </div>
 
   <div class="field">
-    <label>Password</label>
-    <input type="password" id="password" placeholder="Your password" autocomplete="current-password"/>
+    <input type="password" id="password" placeholder="........" autocomplete="current-password"/>
   </div>
 
   <button type="submit" class="btn" id="btn">
     <div class="spinner" id="spin"></div>
-    <span id="btnTxt">Sign In</span>
+    <span id="btnTxt">ACCESS_VAULT</span>
   </button>
   </form>
 
-  <div class="divider">Don't have an account? <a href="/register">Register here</a></div>
+  <div class="divider">NEW USER? <a href="/register">INITIALIZE_ACCOUNT</a></div>
+  <div class="divider" style="margin-top:10px"><a href="/forgot-password" style="font-weight:400">LOST_CREDENTIALS?</a></div>
 </div>
 
 <script>
-  // Already logged in? Go to dashboard
   (function(){
     try { if(localStorage.getItem('vaultToken')) window.location.replace('/dashboard'); }
     catch(e){}
@@ -88,7 +240,7 @@
   function setLoading(on){
     document.getElementById('btn').disabled=on;
     document.getElementById('spin').style.display=on?'block':'none';
-    document.getElementById('btnTxt').textContent=on?'Signing in…':'Sign In';
+    document.getElementById('btnTxt').textContent=on?'AUTHENTICATING...':'ACCESS_VAULT';
   }
 
   async function doLogin(event){
@@ -99,13 +251,13 @@
     document.getElementById('err').className='alert err';
     document.getElementById('ok').className='alert ok';
 
-    if(!email) return showErr('Please enter your email.');
-    if(!pw)    return showErr('Please enter your password.');
+    if(!email) return showErr('ERR: IDENTIFIER_REQUIRED');
+    if(!pw)    return showErr('ERR: CREDENTIALS_REQUIRED');
 
     setLoading(true);
 
     try {
-      showOk('Contacting server…');
+      showOk('UPLINK_ESTABLISHED...');
 
       const res = await fetch('/api/auth/login',{
         method:'POST',
@@ -113,36 +265,34 @@
         body:JSON.stringify({email, password:pw})
       });
 
-      // Always read as text first, then parse — this shows us exactly what server returned
       const rawText = await res.text();
       let data;
       try { data = JSON.parse(rawText); }
       catch(e){
-        showErr('Server returned unexpected response:\n'+rawText.substring(0,300));
+        showErr('ERR: MALFORMED_RESPONSE\n'+rawText.substring(0,100));
         setLoading(false); return;
       }
 
       if(!res.ok){
-        showErr(data.error || 'Login failed (HTTP '+res.status+')');
+        showErr(data.error || 'ERR: ACCESS_DENIED (HTTP '+res.status+')');
         setLoading(false); return;
       }
 
       if(!data.token){
-        showErr('Server did not return a token. Got: '+JSON.stringify(data));
+        showErr('ERR: TOKEN_MISSING');
         setLoading(false); return;
       }
 
-      showOk('Login successful! Redirecting…');
+      showOk('ACCESS_GRANTED! REDIRECTING...');
       localStorage.setItem('vaultToken', data.token);
       localStorage.setItem('vaultUser',  JSON.stringify(data.user));
       setTimeout(()=>{ window.location.replace('/dashboard'); }, 1200);
 
     } catch(networkErr){
-      showErr('Cannot reach server. Is it running on port 3000? Error: '+networkErr.message);
+      showErr('ERR: HOST_UNREACHABLE ('+networkErr.message+')');
       setLoading(false);
     }
   }
 </script>
-  <script src="/script.js"></script>
 </body>
 </html>
