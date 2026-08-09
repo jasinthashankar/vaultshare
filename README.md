@@ -2,6 +2,10 @@
 
 > A secure, full-stack file sharing web application with privacy controls, access enforcement, and real-time analytics.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-vaultshare--1.onrender.com-brightgreen?style=for-the-badge&logo=render)](https://vaultshare-1.onrender.com/)
+
+🔗 **Live App:** [https://vaultshare-1.onrender.com/](https://vaultshare-1.onrender.com/)
+
 ---
 
 ## About the Project
@@ -234,6 +238,8 @@ App runs at `http://localhost:3000`
 ---
 
 ## Deployment (Render)
+
+🌐 **Live URL:** [https://vaultshare-1.onrender.com/](https://vaultshare-1.onrender.com/)
 
 1. Push to GitHub
 2. Create a new **Web Service** on [Render](https://render.com)
